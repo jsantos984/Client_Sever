@@ -1,0 +1,7 @@
+cffi==1.16.0
+coverage @ file:///D:/bld/coverage_1708463179920/work
+cryptography==42.0.5
+pycparser==2.21
+setuptools==69.1.0
+tomli @ file:///home/conda/feedstock_root/build_artifacts/tomli_1644342247877/work
+wheel==0.42.0
