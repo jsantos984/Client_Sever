@@ -10,63 +10,83 @@ class Server:
         self.cipher_suite = Fernet(encryption_key)
     
     def decrypt_data(self, encrypted_data):
-        # Decrypt data; if there's an error, return None
         try:
             return self.cipher_suite.decrypt(encrypted_data)
-        except cryptography.fernet.InvalidToken:
-            print("Invalid decryption token or key.")
+        except Fernet.InvalidToken as e:
+            print("Invalid decryption token or key.", e)
             return None
 
     def deserialize_data(self, data, format_type):
-        # Deserialize data based on the format type
-        if format_type == 'json':
-            return json.loads(data)
-        elif format_type == 'binary':
-            return pickle.loads(data)
-        elif format_type == 'xml':
-            # For XML, extracting the content under a 'content' tag
-            return ET.fromstring(data).find('content').text
-        else:
-            print("Unsupported format type.")
+        try:
+            if format_type == 'json':
+                return json.loads(data)
+            elif format_type == 'binary':
+                return pickle.loads(data)
+            elif format_type == 'xml':
+                return ET.fromstring(data).find('content').text
+            else:
+                raise ValueError("Unsupported serialization format.")
+        except (json.JSONDecodeError, pickle.UnpicklingError, ET.ParseError, ValueError) as e:
+            print(f"Deserialization error: {e}")
             return None
 
     def bind_and_listen(self, host, port):
-        # Bind the server to a specified host and port, then listen for connections
-        self.sock.bind((host, port))
-        self.sock.listen()
-        print(f"Server listening on {host}:{port}")
+        try:
+            self.sock.bind((host, port))
+            self.sock.listen()
+            print(f"Server listening on {host}:{port}")
+        except socket.error as e:
+            print(f"Socket error: {e}")
+            raise e
 
     def accept_connection(self):
-        # Accept an incoming connection
-        return self.sock.accept()
+        try:
+            return self.sock.accept()
+        except socket.error as e:
+            print(f"Error accepting connections: {e}")
+            return None, None
 
     def receive_and_process_data(self, conn):
-        # Receive data from the client
         try:
-            # Assuming the format and encryption flag are sent first
-            format_type, encrypted = conn.recv(1024).decode().split(',')
-            data = conn.recv(4096)  # Adjust buffer size based on your data needs
+            header = conn.recv(1024).decode()
+            format_type, encrypted = header.split(',')
+            encrypted = encrypted == 'True'
 
-            if encrypted == 'True':
+            data = b''
+            while True:
+                packet = conn.recv(4096)
+                if not packet: break
+                data += packet
+
+            if encrypted:
                 data = self.decrypt_data(data)
-                if data is None:  # Failed decryption
+                if data is None:
                     return
 
-            # Deserialize data based on format type
             deserialized_data = self.deserialize_data(data, format_type)
-            print("Received data:", deserialized_data)
+            if deserialized_data is not None:
+                print("Received data:", deserialized_data)
+        except socket.error as e:
+            print(f"Error receiving data: {e}")
         finally:
             conn.close()
 
     def run(self):
-        print("Server is running...")
-        while True:
-            conn, addr = self.accept_connection()
-            print(f"Connection accepted from {addr}")
-            self.receive_and_process_data(conn)
+        try:
+            print("Server is running...")
+            while True:
+                conn, addr = self.accept_connection()
+                if conn and addr:
+                    print(f"Connection accepted from {addr}")
+                    self.receive_and_process_data(conn)
+        finally:
+            self.sock.close()
 
 if __name__ == "__main__":
-    encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='  # Your Fernet key
+    encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='  # Must match the client's key
     server = Server(encryption_key)
-    server.bind_and_listen('localhost', 9999)
-    server.run()
+    try:
+        server.bind_and_listen('localhost', 9999)
+        server.run()
+    except Exception as e:
+        print(f"An error occurred: {e}")

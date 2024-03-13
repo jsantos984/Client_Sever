@@ -28,7 +28,11 @@ class Client:
 
     def connect(self, host, port):
         # Connect to the server
-        self.sock.connect((host, port))
+        try:
+            self.sock.connect((host, port))
+        except socket.error as e:
+            print(f"Error connecting to the server: {e}")
+            raise e
 
     def send_data(self, data, format_type='json', encrypt=False):
         # Prepare data
@@ -36,30 +40,41 @@ class Client:
         if encrypt:
             serialized_data = self.encrypt_data(serialized_data)
 
-        # Send format type and encryption flag
-        self.sock.send(f"{format_type},{encrypt}".encode())
-        # Send data
-        self.sock.send(serialized_data)
+        try:
+            # Send format type and encryption flag
+            self.sock.sendall(f"{format_type},{encrypt}".encode())
+            # Send data
+            self.sock.sendall(serialized_data)
+        except socket.error as e:
+            print(f"Error sending data: {e}")
+            raise e
 
 if __name__ == "__main__":
-    encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='
+    encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='  # Same key as the server
     client = Client(encryption_key)
 
-    # User input for data type, format, and encryption choice
-    data_type = input("Send a dictionary or text file? (dict/text): ").lower()
-    format_type = input("Choose serialization format (binary, json, xml): ").lower()
-    encrypt = input("Encrypt data? (yes/no): ").lower() == 'yes'
+    try:
+        # User input for data type, format, and encryption choice
+        data_type = input("Send a dictionary or text file? (dict/text): ").lower()
+        format_type = input("Choose serialization format (binary, json, xml): ").lower()
+        encrypt = input("Encrypt data? (yes/no): ").lower() == 'yes'
 
-    # Prepare data based on user choice
-    if data_type == 'dict':
-        data = {"message": "Hello, Server!"}  # Example dictionary
-    elif data_type == 'text':
-        filename = input("Enter the filename: ")
-        with open(filename, "r") as file:
-            data = file.read()  # Read text file content
-    else:
-        raise ValueError("Unsupported data type.")
+        # Prepare data based on user choice
+        if data_type == 'dict':
+            data = {"message": "Hello, Server!"}  # Example dictionary
+        elif data_type == 'text':
+            filename = input("Enter the filename: ")
+            try:
+                with open(filename, "r") as file:
+                    data = file.read()  # Read text file content
+            except FileNotFoundError as e:
+                print(f"File not found: {e}")
+                raise e
+        else:
+            raise ValueError("Unsupported data type.")
 
-    client.connect('localhost', 9999)
-    client.send_data(data, format_type, encrypt)
-    print("Data sent.")
+        client.connect('localhost', 9999)
+        client.send_data(data, format_type, encrypt)
+        print("Data sent.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
