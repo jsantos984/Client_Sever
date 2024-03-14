@@ -40,6 +40,15 @@ class TestServer(unittest.TestCase):
         deserialized_data = self.server.deserialize_data(xml_data, 'xml')
         self.assertEqual(deserialized_data, 'Hello')
 
+    def test_bind_and_listen(self):
+        # Test server binding and listening
+        host = '127.0.0.1'  # conflict if using 'localhost'
+        port = 9999
+        self.server.bind_and_listen(host, port)
+
+        # Check if the server is bound to the specified host and port
+        self.assertEqual(self.server.sock.getsockname(), (host, port))
+
 
 if __name__ == '__main__':
     unittest.main()
