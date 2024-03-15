@@ -2,7 +2,9 @@ import socket
 import json
 import pickle
 import xml.etree.ElementTree as ET
+import cryptography
 from cryptography.fernet import Fernet
+
 
 class Server:
     def __init__(self, encryption_key):
@@ -64,6 +66,7 @@ class Server:
             conn, addr = self.accept_connection()
             print(f"Connection accepted from {addr}")
             self.receive_and_process_data(conn)
+
 
 if __name__ == "__main__":
     encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='  # Your Fernet key
