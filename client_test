@@ -42,16 +42,19 @@ class TestClient(unittest.TestCase):
         invalid_data_type = 'unsupported_type'
         data = {"message": "Hello, Server!"}
 
-        self.client.connect('localhost', 9999)  # Connect before sending data
+        # Connect the client before sending data
+        self.client.connect('localhost', 9999)
 
         with self.assertRaises(ValueError) as context:
-            self.client.send_data(data, format_type='json', encrypt=False, data_type=invalid_data_type)
+            # Attempt to send data with an unsupported serialization format
+            self.client.send_data(data, format_type=invalid_data_type, encrypt=False)
 
         self.assertEqual(
             str(context.exception),
-            "Unsupported data type."
+            "Unsupported serialization format."
         )
 
 
 if __name__ == '__main__':
     unittest.main()
+
