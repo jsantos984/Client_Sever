@@ -1,4 +1,4 @@
-The following readme file summarises the client-to-server communication created as part of the group project for the summartive assessment of CSCK541 Software Development in Practice January 2024 C.
+The following readme file summarises the client-to-server communication created as part of the group project for the summative assessment of CSCK541 Software Development in Practice January 2024 C.
 
 ### ***Index***
 
@@ -11,15 +11,17 @@ The following readme file summarises the client-to-server communication created 
 
 ###  **Geetting started**
 
-The program aims to show client to server interaction coded via Python. The user can send to server a dictionary (in binary, JSON or XML) or a text file (encrypted or not).
+The program aims to show client-server interaction coded via Python. The user can send the server a dictionary (in binary, JSON, or XML) or a text file (encrypted or not).
 
 As a result, the server will display the contents of the sent items on the screen, as reported in the figure below.
 
-<<figure 1 here >>
+![Screenshot 2024-03-15 alle 09 41 10](https://github.com/jsantos984/Client_Sever/assets/158838122/b14e51cd-9163-466c-a5e1-0d92f95ce71d)
+
 
 ###  ***Tools requirements and installation***
  
 For the purpose of this program, no specific tools are necessary. The program can be used in IDLE and other terminals that support Python language.
+
 To access the file, please use the following path.
 
 	└──github.com/
@@ -35,11 +37,11 @@ The project's development was carried out on two main files (i.e., client_skelet
 
 ### **Authors**
 
-Joao Pedro Santos -->  Project manager 
+Joao Pedro Santos --> Project manager
 
 Jacopo Saraiva --> Software Tester 		  
 
-Francesco V Ferraro --> Software Architect ![]
+Francesco V Ferraro --> Software Architect
 
-Moustafa Said Hassan Foud -->   Software Engineer
+Moustafa Said Hassan Foud --> Software Engineer
 
