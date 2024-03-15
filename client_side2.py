@@ -4,6 +4,7 @@ import pickle
 import xml.etree.ElementTree as ET
 from cryptography.fernet import Fernet
 
+
 class Client:
     def __init__(self, encryption_key):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,25 +42,40 @@ class Client:
         # Send data
         self.sock.send(serialized_data)
 
+
 if __name__ == "__main__":
     encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='
     client = Client(encryption_key)
 
-    # User input for data type, format, and encryption choice
-    data_type = input("Send a dictionary or text file? (dict/text): ").lower()
-    format_type = input("Choose serialization format (binary, json, xml): ").lower()
-    encrypt = input("Encrypt data? (yes/no): ").lower() == 'yes'
+    try:
+        # User input for data type, format, and encryption choice
+        data_type = input("Send a dictionary or text file? (dict/text): ").lower()
+        if data_type not in ['dict', 'text']:
+            raise ValueError("Invalid data type. Choose 'dict' or 'text'.")
 
-    # Prepare data based on user choice
-    if data_type == 'dict':
-        data = {"message": "Hello, Server!"}  # Example dictionary
-    elif data_type == 'text':
-        filename = input("Enter the filename: ")
-        with open(filename, "r") as file:
-            data = file.read()  # Read text file content
+        format_type = input("Choose serialization format (binary, json, xml): ").lower()
+        if format_type not in ['binary', 'json', 'xml']:
+            raise ValueError("Invalid serialization format. Choose 'binary', 'json', or 'xml'.")
+
+        encrypt = input("Encrypt data? (yes/no): ").lower() == 'yes'
+
+        # Prepare data based on user choice
+        if data_type == 'dict':
+            data = {"message": "Hello, Server!"}  # Example dictionary
+        elif data_type == 'text':
+            filename = input("Enter the filename: ")
+            with open(filename, "r") as file:
+                data = file.read()  # Read text file content
+    except ValueError as e:
+        print("Error:", e)
     else:
-        raise ValueError("Unsupported data type.")
-
-    client.connect('localhost', 9999)
-    client.send_data(data, format_type, encrypt)
-    print("Data sent.")
+        try:
+            client.connect('localhost', 9999)
+            client.send_data(data, format_type, encrypt)
+            print("Data sent.")
+        except ConnectionRefusedError:
+            print("Error: Connection refused. Make sure the server is running and accessible.")
+        except Exception as e:
+            print("An error occurred while sending data:", e)
+        finally:
+            client.sock.close()
