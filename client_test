@@ -9,7 +9,8 @@ class TestClient(unittest.TestCase):
         self.client = Client(self.encryption_key)
 
     def tearDown(self):
-            # Close the socket after each test
+        # Close the socket after each test
+        if self.client.sock.fileno() != -1:
             self.client.sock.close()
 
     def test_encrypt_data(self):
@@ -35,6 +36,21 @@ class TestClient(unittest.TestCase):
         data = {"message": "Hello, Server!"}
         serialized_data = self.client.serialize_data(data, format_type='xml')
         self.assertIsNotNone(serialized_data)
+
+    def test_unsupported_data_type(self):
+        # Test error handling for unsupported data type
+        invalid_data_type = 'unsupported_type'
+        data = {"message": "Hello, Server!"}
+
+        self.client.connect('localhost', 9999)  # Connect before sending data
+
+        with self.assertRaises(ValueError) as context:
+            self.client.send_data(data, format_type='json', encrypt=False, data_type=invalid_data_type)
+
+        self.assertEqual(
+            str(context.exception),
+            "Unsupported data type."
+        )
 
 
 if __name__ == '__main__':
