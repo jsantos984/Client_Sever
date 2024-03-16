@@ -7,8 +7,10 @@ class TestServer(unittest.TestCase):
         self.encryption_key = b'Co-BF0ODIcKopN9XnfMXzIaGyb5eyEUVH13NdaEDKS4='
         self.server = Server(self.encryption_key)
 
-    def tearDown(self):  # Close the socket after each test
-        self.server.sock.close()
+    def tearDown(self):
+        # Close the socket if it's open
+        if self.server.sock.fileno() != -1:
+            self.server.sock.close()
 
     def test_decrypt_data_valid(self):
         # Test successful decryption
