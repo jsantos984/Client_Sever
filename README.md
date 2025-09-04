@@ -11,7 +11,7 @@ The following readme file summarises the client-to-server communication created 
 
 ###  **Geetting started**
 
-The program aims to show client-server interaction coded via Python. The user can send the server a dictionary (in binary, JSON, or XML) or a text file (encrypted or not).
+The aim of the project is to utilise Python programming to implement client-server connections (Figure 1) and convey different forms of data through different encryption methods
 
 As a result, the server will display the contents of the sent items on the screen, as reported in the figure below.
 
